@@ -48,10 +48,11 @@ export default function LibraryPage() {
                 {!book.coverUrl && <div className="flex h-full items-center justify-center text-[#a99472]"><span className="font-serif text-5xl">Aa</span></div>}
               </div>
               <div className="p-5">
-                {book.titleArabic && <h2 dir="rtl" lang="ar" className="text-right text-xl font-semibold leading-8">{book.titleArabic}</h2>}
+                {book.titleAmharic && <h2 lang="am" className="text-xl font-semibold leading-8">{book.titleAmharic}</h2>}
+                {!book.titleAmharic && book.titleArabic && <h2 dir="rtl" lang="ar" className="text-right text-xl font-semibold leading-8">{book.titleArabic}</h2>}
                 {book.titleEnglish && <h3 className="mt-1 font-serif text-xl">{book.titleEnglish}</h3>}
-                <p className="mt-3 text-sm text-stone-600">{book.authorArabic || book.authorEnglish || "Unknown author"}</p>
-                {book.publisher && <p className="mt-1 text-xs uppercase tracking-[0.08em] text-stone-400">{book.publisher}</p>}
+                <p className="mt-3 text-sm text-stone-600">{book.authorAmharic || book.authorArabic || book.authorEnglish || "Unknown author"}</p>
+                {(book.publisherAmharic || book.publisher) && <p className="mt-1 text-xs uppercase tracking-[0.08em] text-stone-400">{book.publisherAmharic || book.publisher}</p>}
               </div>
             </article>
           ))}

@@ -15,6 +15,8 @@ import type * as books from "../books.js";
 import type * as columns from "../columns.js";
 import type * as constants from "../constants.js";
 import type * as http from "../http.js";
+import type * as importApi from "../importApi.js";
+import type * as internalBooks from "../internalBooks.js";
 import type * as orgJoinCodes from "../orgJoinCodes.js";
 import type * as organizations from "../organizations.js";
 import type * as rows from "../rows.js";
@@ -37,6 +39,8 @@ declare const fullApi: ApiFromModules<{
   columns: typeof columns;
   constants: typeof constants;
   http: typeof http;
+  importApi: typeof importApi;
+  internalBooks: typeof internalBooks;
   orgJoinCodes: typeof orgJoinCodes;
   organizations: typeof organizations;
   rows: typeof rows;

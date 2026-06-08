@@ -7,9 +7,14 @@
  */
 import { httpRouter } from "convex/server";
 import { authComponent, createAuth } from "./auth";
+import { uploadImage, createBook, getOrg } from "./importApi";
 
 const http = httpRouter();
 
 authComponent.registerRoutes(http, createAuth);
+
+http.route({ path: "/importImage", method: "POST", handler: uploadImage });
+http.route({ path: "/importBook", method: "POST", handler: createBook });
+http.route({ path: "/getOrg", method: "GET", handler: getOrg });
 
 export default http;

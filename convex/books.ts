@@ -11,9 +11,12 @@ export const list = query({
     id: v.string(),
     titleEnglish: optionalText,
     titleArabic: optionalText,
+    titleAmharic: optionalText,
     authorEnglish: optionalText,
     authorArabic: optionalText,
+    authorAmharic: optionalText,
     publisher: optionalText,
+    publisherAmharic: optionalText,
     coverUrl: v.union(v.string(), v.null()),
   })),
   handler: async (ctx, args) => {
@@ -25,9 +28,12 @@ export const list = query({
       id: book._id,
       titleEnglish: book.titleEnglish,
       titleArabic: book.titleArabic,
+      titleAmharic: book.titleAmharic,
       authorEnglish: book.authorEnglish,
       authorArabic: book.authorArabic,
+      authorAmharic: book.authorAmharic,
       publisher: book.publisher,
+      publisherAmharic: book.publisherAmharic,
       coverUrl: book.coverStorageId ? await ctx.storage.getUrl(book.coverStorageId) : null,
     })));
   },
@@ -47,14 +53,19 @@ export const create = mutation({
     organizationId: v.string(),
     titleEnglish: optionalText,
     titleArabic: optionalText,
+    titleAmharic: optionalText,
     authorEnglish: optionalText,
     authorArabic: optionalText,
+    authorAmharic: optionalText,
     publisher: optionalText,
+    publisherAmharic: optionalText,
     isbn: optionalText,
     edition: optionalText,
     bookType: v.optional(v.union(v.literal("single"), v.literal("multi-volume"))),
     expectedVolumeCount: v.optional(v.number()),
     visibleVolumes: v.optional(v.array(v.number())),
+    copyCount: v.optional(v.number()),
+    physicalVolumeCount: v.optional(v.number()),
     column: optionalText,
     row: optionalText,
     notes: optionalText,
@@ -65,22 +76,27 @@ export const create = mutation({
     const access = await requireTenantAccess(ctx, args.organizationId);
     const organizationId = ctx.db.normalizeId("organizations", args.organizationId);
     if (!organizationId) throw new ConvexError("Organization not found");
-    if (!args.titleEnglish?.trim() && !args.titleArabic?.trim()) {
-      throw new ConvexError("English or Arabic title is required");
+    if (!args.titleEnglish?.trim() && !args.titleArabic?.trim() && !args.titleAmharic?.trim()) {
+      throw new ConvexError("English, Arabic, or Amharic title is required");
     }
     const clean = (value?: string) => value?.trim() || undefined;
     return await ctx.db.insert("books", {
       organizationId,
       titleEnglish: clean(args.titleEnglish),
       titleArabic: clean(args.titleArabic),
+      titleAmharic: clean(args.titleAmharic),
       authorEnglish: clean(args.authorEnglish),
       authorArabic: clean(args.authorArabic),
+      authorAmharic: clean(args.authorAmharic),
       publisher: clean(args.publisher),
+      publisherAmharic: clean(args.publisherAmharic),
       isbn: clean(args.isbn),
       edition: clean(args.edition),
       bookType: args.bookType,
       expectedVolumeCount: args.expectedVolumeCount,
       visibleVolumes: args.visibleVolumes,
+      copyCount: args.copyCount,
+      physicalVolumeCount: args.physicalVolumeCount,
       column: clean(args.column),
       row: clean(args.row),
       notes: clean(args.notes),
