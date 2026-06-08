@@ -117,7 +117,24 @@ export default function AddBookPage() {
           <section className="rounded-2xl bg-[#26352f] p-6 text-white">
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#d9ad57]">JSON import</p>
             <p className="mt-2 text-sm leading-6 text-[#ced5d0]">Paste one book object. Nested or flat bilingual keys work.</p>
-            <textarea value={json} onChange={(e) => setJson(e.target.value)} rows={10} spellCheck={false} placeholder={'{"title":{"en":"","ar":""},"author":{"en":"","ar":""}}'} className="mt-4 w-full rounded-xl border border-white/15 bg-black/20 p-3 font-mono text-xs leading-5 text-white outline-none focus:border-[#d9ad57]" />
+            <textarea value={json} onChange={(e) => setJson(e.target.value)} rows={15} spellCheck={false} placeholder={`{
+  "title": {
+    "en": "Siyar A'lam al-Nubala",
+    "ar": "سير أعلام النبلاء"
+  },
+  "author": {
+    "en": "Shams al-Din al-Dhahabi",
+    "ar": "شمس الدين الذهبي"
+  },
+  "publisher": "مؤسسة الرسالة",
+  "edition": "",
+  "bookType": "multi-volume",
+  "expectedVolumeCount": 25,
+  "visibleVolumes": [1, 2, 3, 4, 5, 6],
+  "column": "A1",
+  "row": "2",
+  "notes": "Volumes 1–6 are visible in this image."
+}`} className="mt-4 w-full rounded-xl border border-white/15 bg-black/20 p-3 font-mono text-xs leading-5 text-white outline-none focus:border-[#d9ad57]" />
             <button type="button" onClick={importJson} className="mt-3 w-full rounded-xl border border-white/20 px-4 py-2.5 text-sm font-semibold hover:bg-white/10">Load JSON</button>
           </section>
           {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-800">{error}</p>}
