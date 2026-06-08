@@ -8,9 +8,12 @@ import { BookDraft, parseBookJson } from "@/lib/book-json";
 import type { Id } from "../../../../../convex/_generated/dataModel";
 
 const emptyBook: BookDraft = {
-  titleEnglish: "", titleArabic: "", authorEnglish: "", authorArabic: "",
-  publisher: "", isbn: "", edition: "", bookType: "single", expectedVolumeCount: undefined,
-  visibleVolumes: [], column: "", row: "", notes: "",
+  titleEnglish: "", titleArabic: "", titleAmharic: "", 
+  authorEnglish: "", authorArabic: "", authorAmharic: "",
+  publisher: "", publisherAmharic: "", isbn: "", edition: "", 
+  bookType: "single", expectedVolumeCount: undefined,
+  visibleVolumes: [], copyCount: undefined, physicalVolumeCount: undefined, 
+  column: "", row: "", notes: "",
 };
 
 export default function AddBookPage() {
@@ -117,20 +120,27 @@ export default function AddBookPage() {
           <section className="rounded-2xl bg-[#26352f] p-6 text-white">
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#d9ad57]">JSON import</p>
             <p className="mt-2 text-sm leading-6 text-[#ced5d0]">Paste one book object. Nested or flat bilingual keys work.</p>
-            <textarea value={json} onChange={(e) => setJson(e.target.value)} rows={15} spellCheck={false} placeholder={`{
+            <textarea value={json} onChange={(e) => setJson(e.target.value)} rows={20} spellCheck={false} placeholder={`{
   "title": {
     "en": "Siyar A'lam al-Nubala",
-    "ar": "سير أعلام النبلاء"
+    "ar": "سير أعلام النبلاء",
+    "am": "ሲያር አዕላም አል-ኑባላ"
   },
   "author": {
     "en": "Shams al-Din al-Dhahabi",
-    "ar": "شمس الدين الذهبي"
+    "ar": "شمس الدين الذهبي",
+    "am": "ሻምስ አል-ዲን አል-ዳሃቢ"
   },
-  "publisher": "مؤسسة الرسالة",
+  "publisher": {
+    "ar": "مؤسسة الرسالة",
+    "am": "አሳታሚ"
+  },
   "edition": "",
   "bookType": "multi-volume",
   "expectedVolumeCount": 25,
   "visibleVolumes": [1, 2, 3, 4, 5, 6],
+  "copyCount": 1,
+  "physicalVolumeCount": 6,
   "column": "A1",
   "row": "2",
   "notes": "Volumes 1–6 are visible in this image."
