@@ -9,7 +9,8 @@ import type { Id } from "../../../../../convex/_generated/dataModel";
 
 const emptyBook: BookDraft = {
   titleEnglish: "", titleArabic: "", authorEnglish: "", authorArabic: "",
-  publisher: "", isbn: "", notes: "",
+  publisher: "", isbn: "", edition: "", bookType: "single", expectedVolumeCount: undefined,
+  visibleVolumes: [], column: "", row: "", notes: "",
 };
 
 export default function AddBookPage() {
@@ -24,7 +25,7 @@ export default function AddBookPage() {
   const [error, setError] = useState("");
   const titleRef = useRef<HTMLInputElement>(null);
 
-  const field = (name: keyof BookDraft, value: string) => setBook((current) => ({ ...current, [name]: value }));
+  const field = <K extends keyof BookDraft>(name: K, value: BookDraft[K]) => setBook((current) => ({ ...current, [name]: value }));
 
   function importJson() {
     try {
@@ -82,7 +83,29 @@ export default function AddBookPage() {
             <Field label="English author" value={book.authorEnglish} onChange={(v) => field("authorEnglish", v)} />
             <Field label="Arabic author" value={book.authorArabic} onChange={(v) => field("authorArabic", v)} rtl />
             <Field label="Publisher" value={book.publisher} onChange={(v) => field("publisher", v)} />
-            <Field label="ISBN" value={book.isbn} onChange={(v) => field("isbn", v)} />
+            <Field label="Edition" value={book.edition} onChange={(v) => field("edition", v)} />
+          </div>
+          
+          <div className="mt-5 grid gap-5 sm:grid-cols-2">
+            <div>
+              <label className="block text-sm font-semibold">Book Type</label>
+              <select value={book.bookType} onChange={(e) => field("bookType", e.target.value as "single" | "multi-volume")} className="mt-2 w-full rounded-xl border border-[#cfc5b5] bg-white px-4 py-3 outline-none focus:border-[#94691f] focus:ring-4 focus:ring-[#d6a950]/15">
+                <option value="single">Single Volume</option>
+                <option value="multi-volume">Multi-volume</option>
+              </select>
+            </div>
+            {book.bookType === "multi-volume" && (
+              <div>
+                <label className="block text-sm font-semibold">Expected Volume Count</label>
+                <input type="number" min="1" value={book.expectedVolumeCount || ""} onChange={(e) => field("expectedVolumeCount", e.target.value ? parseInt(e.target.value) : undefined)} className="mt-2 w-full rounded-xl border border-[#cfc5b5] bg-white px-4 py-3 outline-none focus:border-[#94691f] focus:ring-4 focus:ring-[#d6a950]/15" />
+              </div>
+            )}
+            <Field label="Visible Volumes (e.g. 1,2,3)" value={book.visibleVolumes?.join(", ") || ""} onChange={(v) => field("visibleVolumes", v.split(",").map(s => parseInt(s.trim())).filter(n => !isNaN(n)))} />
+          </div>
+
+          <div className="mt-5 grid gap-5 sm:grid-cols-2">
+            <Field label="Column" value={book.column} onChange={(v) => field("column", v)} />
+            <Field label="Row" value={book.row} onChange={(v) => field("row", v)} />
           </div>
           <label className="mt-5 block text-sm font-semibold">Notes</label>
           <textarea value={book.notes} onChange={(e) => field("notes", e.target.value)} rows={4} className="mt-2 w-full rounded-xl border border-[#cfc5b5] bg-white px-4 py-3 outline-none focus:border-[#94691f] focus:ring-4 focus:ring-[#d6a950]/15" />
