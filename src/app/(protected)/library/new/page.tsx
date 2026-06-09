@@ -1,10 +1,11 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../../../convex/_generated/api";
 import { BookDraft, parseBookJson } from "@/lib/book-json";
+import { useAnalyzeCover } from "@/hooks/useAnalyzeCover";
 import type { Id } from "../../../../../convex/_generated/dataModel";
 
 const emptyBook: BookDraft = {
@@ -27,6 +28,18 @@ export default function AddBookPage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const titleRef = useRef<HTMLInputElement>(null);
+  const { state: analysisState, analyze, reset: resetAnalysis } = useAnalyzeCover();
+
+  // When analysis completes, merge the draft into the form
+  useEffect(() => {
+    if (analysisState.status === "done") {
+      setBook((current) => ({ ...current, ...analysisState.draft }));
+      setMessage("AI analysis complete — review the fields below.");
+      setError("");
+    } else if (analysisState.status === "error") {
+      setError(analysisState.message);
+    }
+  }, [analysisState]);
 
   const field = <K extends keyof BookDraft>(name: K, value: BookDraft[K]) => setBook((current) => ({ ...current, [name]: value }));
 
@@ -114,6 +127,24 @@ export default function AddBookPage() {
           <textarea value={book.notes} onChange={(e) => field("notes", e.target.value)} rows={4} className="mt-2 w-full rounded-xl border border-[#cfc5b5] bg-white px-4 py-3 outline-none focus:border-[#94691f] focus:ring-4 focus:ring-[#d6a950]/15" />
           <label className="mt-5 block text-sm font-semibold">Book cover</label>
           <input type="file" accept="image/*" onChange={(e) => setCover(e.target.files?.[0] ?? null)} className="mt-2 block w-full rounded-xl border border-dashed border-[#c7b99f] bg-[#faf5ea] p-4 text-sm" />
+          {cover && analysisState.status !== "analyzing" && (
+            <button type="button" onClick={() => analyze(cover)} className="mt-3 inline-flex items-center gap-2 rounded-xl bg-[#26352f] px-5 py-2.5 text-sm font-semibold text-white shadow transition hover:bg-[#1a2620]">
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
+              Analyze cover with AI
+            </button>
+          )}
+          {analysisState.status === "analyzing" && (
+            <div className="mt-3 flex items-center gap-3 rounded-xl border border-[#d6a950]/30 bg-[#fef8ee] p-4">
+              <div className="relative h-5 w-5">
+                <div className="absolute inset-0 animate-ping rounded-full bg-[#d6a950]/30" />
+                <div className="absolute inset-0.5 animate-spin rounded-full border-2 border-[#d6a950] border-t-transparent" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-[#94691f]">Analyzing cover…</p>
+                <p className="text-xs text-stone-500">Reading Arabic and English text from the image.</p>
+              </div>
+            </div>
+          )}
         </section>
 
         <aside className="space-y-5">

@@ -35,6 +35,6 @@ testCases.forEach((tc, i) => {
     const result = parseBookJson(tc);
     console.log(`Test ${i + 1} Success:`, result.titleEnglish);
   } catch (e) {
-    console.error(`Test ${i + 1} Failed:`, e.message);
+    console.error(`Test ${i + 1} Failed:`, e instanceof Error ? e.message : String(e));
   }
 });

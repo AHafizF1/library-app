@@ -23,6 +23,37 @@ const text = (value: unknown) => (typeof value === "string" ? value.trim() : "")
 const num = (value: unknown) => (typeof value === "number" ? value : undefined);
 const numArray = (value: unknown) => (Array.isArray(value) ? value.filter(v => typeof v === "number") : undefined);
 
+/**
+ * Shared helper: maps a nested/flat object into a Partial<BookDraft>.
+ * Used by both parseBookJson (JSON import) and mapCoverResultToDraft (AI analysis).
+ */
+export function mapNestedToDraft(value: Record<string, any>): Partial<BookDraft> {
+  const title = (value.title && typeof value.title === "object" ? value.title : {}) as Record<string, unknown>;
+  const author = (value.author && typeof value.author === "object" ? value.author : {}) as Record<string, unknown>;
+  const publisherRaw = (value.publisher && typeof value.publisher === "object" ? value.publisher : {}) as Record<string, unknown>;
+
+  return {
+    titleEnglish: text(value.titleEnglish) || text(title.en),
+    titleArabic: text(value.titleArabic) || text(title.ar),
+    titleAmharic: text(value.titleAmharic) || text(title.am),
+    authorEnglish: text(value.authorEnglish) || text(author.en),
+    authorArabic: text(value.authorArabic) || text(author.ar),
+    authorAmharic: text(value.authorAmharic) || text(author.am),
+    publisher: text(value.publisher) || text(publisherRaw.ar) || text(publisherRaw.en),
+    publisherAmharic: text(value.publisherAmharic) || text(publisherRaw.am),
+    isbn: text(value.isbn),
+    edition: text(value.edition),
+    bookType: text(value.bookType) === "multi-volume" ? "multi-volume" : "single",
+    expectedVolumeCount: num(value.expectedVolumeCount),
+    visibleVolumes: numArray(value.visibleVolumes),
+    copyCount: num(value.copyCount),
+    physicalVolumeCount: num(value.physicalVolumeCount),
+    column: text(value.column),
+    row: text(value.row),
+    notes: text(value.notes),
+  };
+}
+
 export function parseBookJson(source: string): Partial<BookDraft> {
   let trimmed = source.trim();
   if (!trimmed) return {};
@@ -81,28 +112,5 @@ export function parseBookJson(source: string): Partial<BookDraft> {
     throw new Error("JSON must be an object.");
   }
 
-  const title = (value.title ?? {}) as Record<string, unknown>;
-  const author = (value.author ?? {}) as Record<string, unknown>;
-  const publisherRaw = (value.publisher ?? {}) as Record<string, unknown>;
-
-  return {
-    titleEnglish: text(value.titleEnglish) || text(title.en),
-    titleArabic: text(value.titleArabic) || text(title.ar),
-    titleAmharic: text(value.titleAmharic) || text(title.am),
-    authorEnglish: text(value.authorEnglish) || text(author.en),
-    authorArabic: text(value.authorArabic) || text(author.ar),
-    authorAmharic: text(value.authorAmharic) || text(author.am),
-    publisher: text(value.publisher) || text(publisherRaw.ar) || text(publisherRaw.en),
-    publisherAmharic: text(value.publisherAmharic) || text(publisherRaw.am),
-    isbn: text(value.isbn),
-    edition: text(value.edition),
-    bookType: text(value.bookType) === "multi-volume" ? "multi-volume" : "single",
-    expectedVolumeCount: num(value.expectedVolumeCount),
-    visibleVolumes: numArray(value.visibleVolumes),
-    copyCount: num(value.copyCount),
-    physicalVolumeCount: num(value.physicalVolumeCount),
-    column: text(value.column),
-    row: text(value.row),
-    notes: text(value.notes),
-  };
+  return mapNestedToDraft(value);
 }

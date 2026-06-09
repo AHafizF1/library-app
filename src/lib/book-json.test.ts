@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { parseBookJson } from "./book-json";
+import { parseBookJson, mapNestedToDraft } from "./book-json";
 
 describe("parseBookJson", () => {
   test("reads bilingual book details", () => {
@@ -86,5 +86,58 @@ describe("parseBookJson", () => {
     expect(parsed.visibleVolumes).toEqual([1, 2, 3, 4, 5, 6]);
     expect(parsed.column).toBe("");
     expect(parsed.row).toBe("");
+  });
+});
+
+describe("mapNestedToDraft", () => {
+  test("maps nested title/author/publisher objects to flat fields", () => {
+    const result = mapNestedToDraft({
+      title: { en: "The Book", ar: "الكتاب", am: "መጽሐፍ" },
+      author: { en: "Author", ar: "المؤلف", am: "ደራሲ" },
+      publisher: { ar: "دار النشر", en: "Dar al-Nashr", am: "አሳታሚ" },
+    });
+    expect(result.titleEnglish).toBe("The Book");
+    expect(result.titleArabic).toBe("الكتاب");
+    expect(result.titleAmharic).toBe("መጽሐፍ");
+    expect(result.authorEnglish).toBe("Author");
+    expect(result.authorArabic).toBe("المؤلف");
+    expect(result.authorAmharic).toBe("ደራሲ");
+    expect(result.publisher).toBe("دار النشر");
+    expect(result.publisherAmharic).toBe("አሳታሚ");
+  });
+
+  test("prefers flat keys over nested keys", () => {
+    const result = mapNestedToDraft({
+      titleEnglish: "Flat Title",
+      title: { en: "Nested Title" },
+    });
+    expect(result.titleEnglish).toBe("Flat Title");
+  });
+
+  test("handles completely empty input", () => {
+    const result = mapNestedToDraft({});
+    expect(result.titleEnglish).toBe("");
+    expect(result.titleArabic).toBe("");
+    expect(result.authorEnglish).toBe("");
+  });
+
+  test("maps bookType and numeric fields", () => {
+    const result = mapNestedToDraft({
+      bookType: "multi-volume",
+      expectedVolumeCount: 10,
+      copyCount: 2,
+      physicalVolumeCount: 5,
+      visibleVolumes: [1, 2, 3],
+    });
+    expect(result.bookType).toBe("multi-volume");
+    expect(result.expectedVolumeCount).toBe(10);
+    expect(result.copyCount).toBe(2);
+    expect(result.physicalVolumeCount).toBe(5);
+    expect(result.visibleVolumes).toEqual([1, 2, 3]);
+  });
+
+  test("handles publisher as plain string (not nested)", () => {
+    const result = mapNestedToDraft({ publisher: "Simple Publisher" });
+    expect(result.publisher).toBe("Simple Publisher");
   });
 });
