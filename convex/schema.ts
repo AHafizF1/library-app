@@ -31,17 +31,23 @@ export default defineSchema({
     isbn: v.optional(v.string()),
     edition: v.optional(v.string()),
     bookType: v.optional(v.union(v.literal("single"), v.literal("multi-volume"))),
-    expectedVolumeCount: v.optional(v.number()),
-    visibleVolumes: v.optional(v.array(v.number())),
+    volumeStart: v.optional(v.number()),
+    volumeEnd: v.optional(v.number()),
     copyCount: v.optional(v.number()),
     physicalVolumeCount: v.optional(v.number()),
     column: v.optional(v.string()),
     row: v.optional(v.string()),
     notes: v.optional(v.string()),
     coverStorageId: v.optional(v.id("_storage")),
+    parentBookId: v.optional(v.id("books")),
+    // Deprecated fields kept for backward compatibility with old records
+    expectedVolumeCount: v.optional(v.number()),
+    visibleVolumes: v.optional(v.array(v.number())),
     createdBy: v.string(),
     createdAt: v.number(),
-  }).index("by_org", ["organizationId"]),
+  })
+    .index("by_org", ["organizationId"])
+    .index("by_parent", ["parentBookId"]),
 
   /**
    * A shelf is a physical bookshelf unit within a library (organization).

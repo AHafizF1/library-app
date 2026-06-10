@@ -31,14 +31,15 @@ export const createBook = httpAction(async (ctx, request) => {
     isbn: clean(body.isbn),
     edition: clean(body.edition),
     bookType: body.bookType,
-    expectedVolumeCount: body.expectedVolumeCount,
-    visibleVolumes: body.visibleVolumes,
+    volumeStart: body.volumeStart,
+    volumeEnd: body.volumeEnd,
     copyCount: body.copyCount,
     physicalVolumeCount: body.physicalVolumeCount,
     column: clean(body.column),
     row: clean(body.row),
     notes: clean(body.notes),
     coverStorageId: body.coverStorageId,
+    parentBookId: body.parentBookId,
   });
 
   return new Response(JSON.stringify({ bookId }), { headers: { "Content-Type": "application/json" } });

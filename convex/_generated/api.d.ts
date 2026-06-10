@@ -12,6 +12,7 @@ import type * as _internal from "../_internal.js";
 import type * as auth from "../auth.js";
 import type * as betterAuthSchema from "../betterAuthSchema.js";
 import type * as books from "../books.js";
+import type * as booksResolver from "../booksResolver.js";
 import type * as columns from "../columns.js";
 import type * as constants from "../constants.js";
 import type * as http from "../http.js";
@@ -36,6 +37,7 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   betterAuthSchema: typeof betterAuthSchema;
   books: typeof books;
+  booksResolver: typeof booksResolver;
   columns: typeof columns;
   constants: typeof constants;
   http: typeof http;

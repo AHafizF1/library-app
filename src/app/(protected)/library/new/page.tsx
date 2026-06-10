@@ -12,13 +12,14 @@ const emptyBook: BookDraft = {
   titleEnglish: "", titleArabic: "", titleAmharic: "", 
   authorEnglish: "", authorArabic: "", authorAmharic: "",
   publisher: "", publisherAmharic: "", isbn: "", edition: "", 
-  bookType: "single", expectedVolumeCount: undefined,
-  visibleVolumes: [], copyCount: undefined, physicalVolumeCount: undefined, 
-  column: "", row: "", notes: "",
+  bookType: "single", volumeStart: undefined, volumeEnd: undefined,
+  copyCount: undefined, physicalVolumeCount: undefined, 
+  column: "", row: "", notes: "", parentBookId: undefined,
 };
 
 export default function AddBookPage() {
   const organization = useQuery(api.organizations.current);
+  const existingBooks = useQuery(api.books.list, organization ? { organizationId: organization.id } : "skip");
   const createBook = useMutation(api.books.create);
   const generateUploadUrl = useMutation(api.books.generateUploadUrl);
   const [book, setBook] = useState(emptyBook);
@@ -94,12 +95,12 @@ export default function AddBookPage() {
       <form onSubmit={submit} className="grid gap-8 py-8 lg:grid-cols-[1fr_360px]">
         <section className="rounded-2xl border border-[#d9cfbf] bg-[#fffdf8] p-6 shadow-sm sm:p-8">
           <div className="grid gap-5 sm:grid-cols-2">
-            <Field ref={titleRef} label="English title" value={book.titleEnglish} onChange={(v) => field("titleEnglish", v)} />
-            <Field label="Arabic title" value={book.titleArabic} onChange={(v) => field("titleArabic", v)} rtl />
-            <Field label="English author" value={book.authorEnglish} onChange={(v) => field("authorEnglish", v)} />
-            <Field label="Arabic author" value={book.authorArabic} onChange={(v) => field("authorArabic", v)} rtl />
-            <Field label="Publisher" value={book.publisher} onChange={(v) => field("publisher", v)} />
-            <Field label="Edition" value={book.edition} onChange={(v) => field("edition", v)} />
+            <Field ref={titleRef} label="English title" value={book.titleEnglish || ""} onChange={(v) => field("titleEnglish", v)} />
+            <Field label="Arabic title" value={book.titleArabic || ""} onChange={(v) => field("titleArabic", v)} rtl />
+            <Field label="English author" value={book.authorEnglish || ""} onChange={(v) => field("authorEnglish", v)} />
+            <Field label="Arabic author" value={book.authorArabic || ""} onChange={(v) => field("authorArabic", v)} rtl />
+            <Field label="Publisher" value={book.publisher || ""} onChange={(v) => field("publisher", v)} />
+            <Field label="Edition" value={book.edition || ""} onChange={(v) => field("edition", v)} />
           </div>
           
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
@@ -111,17 +112,41 @@ export default function AddBookPage() {
               </select>
             </div>
             {book.bookType === "multi-volume" && (
-              <div>
-                <label className="block text-sm font-semibold">Expected Volume Count</label>
-                <input type="number" min="1" value={book.expectedVolumeCount || ""} onChange={(e) => field("expectedVolumeCount", e.target.value ? parseInt(e.target.value) : undefined)} className="mt-2 w-full rounded-xl border border-[#cfc5b5] bg-white px-4 py-3 outline-none focus:border-[#94691f] focus:ring-4 focus:ring-[#d6a950]/15" />
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-semibold">Volume Start</label>
+                  <input type="number" min="1" value={book.volumeStart || ""} onChange={(e) => field("volumeStart", e.target.value ? parseInt(e.target.value) : undefined)} className="mt-2 w-full rounded-xl border border-[#cfc5b5] bg-white px-4 py-3 outline-none focus:border-[#94691f] focus:ring-4 focus:ring-[#d6a950]/15" />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold">Volume End</label>
+                  <input type="number" min="1" value={book.volumeEnd || ""} onChange={(e) => field("volumeEnd", e.target.value ? parseInt(e.target.value) : undefined)} className="mt-2 w-full rounded-xl border border-[#cfc5b5] bg-white px-4 py-3 outline-none focus:border-[#94691f] focus:ring-4 focus:ring-[#d6a950]/15" />
+                </div>
               </div>
             )}
-            <Field label="Visible Volumes (e.g. 1,2,3)" value={book.visibleVolumes?.join(", ") || ""} onChange={(v) => field("visibleVolumes", v.split(",").map(s => parseInt(s.trim())).filter(n => !isNaN(n)))} />
           </div>
 
           <div className="mt-5 grid gap-5 sm:grid-cols-2">
-            <Field label="Column" value={book.column} onChange={(v) => field("column", v)} />
-            <Field label="Row" value={book.row} onChange={(v) => field("row", v)} />
+            <div>
+              <label className="block text-sm font-semibold">Parent Book (Optional)</label>
+              <select value={book.parentBookId || ""} onChange={(e) => field("parentBookId", e.target.value || undefined)} className="mt-2 w-full rounded-xl border border-[#cfc5b5] bg-white px-4 py-3 outline-none focus:border-[#94691f] focus:ring-4 focus:ring-[#d6a950]/15">
+                <option value="">-- Standalone/Primary Book --</option>
+                {existingBooks?.filter(b => !b.parentBookId).map(b => (
+                  <option key={b.id} value={b.id}>
+                    {b.titleEnglish || b.titleAmharic || b.titleArabic || "Untitled"} ({b.authorEnglish || b.authorAmharic || "Unknown"})
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1 text-xs text-stone-500">Link this copy to a primary book record. Trilingual titles and author metadata will be inherited automatically.</p>
+            </div>
+            <div>
+              <label className="block text-sm font-semibold">Copies Count</label>
+              <input type="number" min="1" value={book.copyCount || ""} onChange={(e) => field("copyCount", e.target.value ? parseInt(e.target.value) : undefined)} className="mt-2 w-full rounded-xl border border-[#cfc5b5] bg-white px-4 py-3 outline-none focus:border-[#94691f] focus:ring-4 focus:ring-[#d6a950]/15" placeholder="1" />
+            </div>
+          </div>
+
+          <div className="mt-5 grid gap-5 sm:grid-cols-2">
+            <Field label="Column" value={book.column || ""} onChange={(v) => field("column", v)} />
+            <Field label="Row" value={book.row || ""} onChange={(v) => field("row", v)} />
           </div>
           <label className="mt-5 block text-sm font-semibold">Notes</label>
           <textarea value={book.notes} onChange={(e) => field("notes", e.target.value)} rows={4} className="mt-2 w-full rounded-xl border border-[#cfc5b5] bg-white px-4 py-3 outline-none focus:border-[#94691f] focus:ring-4 focus:ring-[#d6a950]/15" />

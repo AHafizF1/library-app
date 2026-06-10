@@ -10,18 +10,20 @@ export type BookDraft = {
   isbn: string;
   edition: string;
   bookType: "single" | "multi-volume";
-  expectedVolumeCount?: number;
-  visibleVolumes?: number[];
+  volumeStart?: number;
+  volumeEnd?: number;
   copyCount?: number;
   physicalVolumeCount?: number;
   column: string;
   row: string;
   notes: string;
+  parentBookId?: string;
+  expectedVolumeCount?: number;
+  visibleVolumes?: number[];
 };
 
 const text = (value: unknown) => (typeof value === "string" ? value.trim() : "");
 const num = (value: unknown) => (typeof value === "number" ? value : undefined);
-const numArray = (value: unknown) => (Array.isArray(value) ? value.filter(v => typeof v === "number") : undefined);
 
 /**
  * Shared helper: maps a nested/flat object into a Partial<BookDraft>.
@@ -44,13 +46,16 @@ export function mapNestedToDraft(value: Record<string, any>): Partial<BookDraft>
     isbn: text(value.isbn),
     edition: text(value.edition),
     bookType: text(value.bookType) === "multi-volume" ? "multi-volume" : "single",
-    expectedVolumeCount: num(value.expectedVolumeCount),
-    visibleVolumes: numArray(value.visibleVolumes),
+    volumeStart: num(value.volumeStart),
+    volumeEnd: num(value.volumeEnd),
     copyCount: num(value.copyCount),
     physicalVolumeCount: num(value.physicalVolumeCount),
     column: text(value.column),
     row: text(value.row),
     notes: text(value.notes),
+    parentBookId: text(value.parentBookId) || undefined,
+    expectedVolumeCount: num(value.expectedVolumeCount),
+    visibleVolumes: Array.isArray(value.visibleVolumes) ? value.visibleVolumes.map(Number) : undefined,
   };
 }
 

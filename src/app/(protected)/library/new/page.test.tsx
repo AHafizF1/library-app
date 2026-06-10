@@ -14,7 +14,11 @@ const mockGenerateUploadUrl = vi.fn().mockResolvedValue("https://fake.url");
 const mockOrganization = { id: "org_123" };
 
 vi.mock("convex/react", () => ({
-  useQuery: () => mockOrganization,
+  useQuery: (apiMethod: any) => {
+    if (apiMethod?.name === "organizations.current") return mockOrganization;
+    if (apiMethod?.name === "books.list") return [];
+    return undefined;
+  },
   useMutation: (apiMethod: any) => {
     if (apiMethod.name === "create") return mockCreateBook;
     if (apiMethod.name === "generateUploadUrl") return mockGenerateUploadUrl;
@@ -24,8 +28,12 @@ vi.mock("convex/react", () => ({
 
 vi.mock("../../../../../convex/_generated/api", () => ({
   api: {
-    organizations: { current: {} },
-    books: { create: { name: "create" }, generateUploadUrl: { name: "generateUploadUrl" } },
+    organizations: { current: { name: "organizations.current" } },
+    books: { 
+      list: { name: "books.list" },
+      create: { name: "create" }, 
+      generateUploadUrl: { name: "generateUploadUrl" } 
+    },
   },
 }));
 

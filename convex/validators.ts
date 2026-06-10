@@ -12,6 +12,32 @@ import { v } from "convex/values";
 /** Organization ID argument — used by every tenant-scoped operation. */
 export const orgIdArg = { organizationId: v.string() };
 
+/** Shared book field validators. */
+export const bookFields = {
+  titleEnglish: v.optional(v.string()),
+  titleArabic: v.optional(v.string()),
+  titleAmharic: v.optional(v.string()),
+  authorEnglish: v.optional(v.string()),
+  authorArabic: v.optional(v.string()),
+  authorAmharic: v.optional(v.string()),
+  publisher: v.optional(v.string()),
+  publisherAmharic: v.optional(v.string()),
+  isbn: v.optional(v.string()),
+  edition: v.optional(v.string()),
+  bookType: v.optional(v.union(v.literal("single"), v.literal("multi-volume"))),
+  volumeStart: v.optional(v.number()),
+  volumeEnd: v.optional(v.number()),
+  copyCount: v.optional(v.number()),
+  physicalVolumeCount: v.optional(v.number()),
+  column: v.optional(v.string()),
+  row: v.optional(v.string()),
+  notes: v.optional(v.string()),
+  coverStorageId: v.optional(v.id("_storage")),
+  parentBookId: v.optional(v.id("books")),
+  expectedVolumeCount: v.optional(v.number()),
+  visibleVolumes: v.optional(v.array(v.number())),
+};
+
 /** Shelf creation args. */
 export const createShelfArgs = {
   ...orgIdArg,

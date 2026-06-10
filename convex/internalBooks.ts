@@ -1,5 +1,6 @@
 import { internalMutation, internalQuery } from "./_generated/server";
 import { v } from "convex/values";
+import { bookFields } from "./validators";
 
 export const getOrgRaw = internalQuery({
   args: {},
@@ -11,25 +12,7 @@ export const getOrgRaw = internalQuery({
 export const importBookRaw = internalMutation({
   args: {
     organizationId: v.string(),
-    titleEnglish: v.optional(v.string()),
-    titleArabic: v.optional(v.string()),
-    titleAmharic: v.optional(v.string()),
-    authorEnglish: v.optional(v.string()),
-    authorArabic: v.optional(v.string()),
-    authorAmharic: v.optional(v.string()),
-    publisher: v.optional(v.string()),
-    publisherAmharic: v.optional(v.string()),
-    isbn: v.optional(v.string()),
-    edition: v.optional(v.string()),
-    bookType: v.optional(v.union(v.literal("single"), v.literal("multi-volume"))),
-    expectedVolumeCount: v.optional(v.number()),
-    visibleVolumes: v.optional(v.array(v.number())),
-    copyCount: v.optional(v.number()),
-    physicalVolumeCount: v.optional(v.number()),
-    column: v.optional(v.string()),
-    row: v.optional(v.string()),
-    notes: v.optional(v.string()),
-    coverStorageId: v.optional(v.id("_storage")),
+    ...bookFields,
   },
   handler: async (ctx, args) => {
     const organizationId = ctx.db.normalizeId("organizations", args.organizationId);
