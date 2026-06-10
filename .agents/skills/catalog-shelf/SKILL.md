@@ -9,17 +9,14 @@ This skill guides the agent through the complete, end-to-end manual transcriptio
 
 ---
 
-## Step 1: Scan and Filter the Images
-1. **Directory Listing**: Use `list_dir` to read all file names and sizes in the photos folder (e.g. `C:\Users\Afiz\AppData\Local\Packages\...`).
-2. **Thumbnail Separation**: 
-   - Identify thumbnails (standard Telegram format: `*_109.jpg`, size 10–20KB).
-   - Identify full-resolution covers (standard Telegram format: `*_121.jpg`, size 70–200KB).
-3. **Target List**: Compile a list of only the high-resolution (`*_121.jpg`) files to transcribe. Discard the thumbnails from the processing queue.
+## Step 1: Scan Folder Location and Read Coordinates
+1. **Determine Location Coordinates**: Retrieve the folder name of the target books directory (e.g. `C22-R04`). Parse the name to extract the `column` (e.g. `C22`) and `row` (e.g. `R04`) values. These coordinates apply to all books in this folder.
+2. **Directory Listing**: Use `list_dir` to retrieve all image file names in the directory. Since all files are full-resolution book cover images (without Telegram thumbnails), add all image files directly to the transcription queue.
 
 ---
 
 ## Step 2: View and Transcribe the Book Covers
-For each high-resolution file in the target list, invoke the `view_file` tool to inspect the image. Transcribe the metadata in Arabic, Amharic, and English:
+For each image file in the queue, invoke the `view_file` tool to inspect the image. Transcribe the metadata in Arabic, Amharic, and English:
 
 - **Arabic Title & Author**: Read the calligraphic script. If the book is a translation of a classical work, prioritize the original Arabic name.
 - **Amharic Title & Author**: Read the Ge'ez script text.
@@ -93,9 +90,11 @@ Run the script to push files and metadata to production:
 2. **Retrieve Organization ID**: Query `${convexSiteUrl}/getOrg` using Header `{ Authorization: "Bearer IMPORT_SECRET_123" }` to get the ID for organization `"mama"`.
 3. **Upload Files & Save Records**:
    - For each book in the array:
-     - Read the image from `photoDir` and upload it to `${convexSiteUrl}/importImage` to retrieve the `storageId`.
-     - Post the metadata (including the newly uploaded `coverStorageId`, `column`, `row`, `copyCount`, and `physicalVolumeCount`) to `${convexSiteUrl}/importBook`.
+     - Read the image from the parsed location directory and upload it to `${convexSiteUrl}/importImage` to retrieve the `storageId`.
+     - Post the metadata (including the newly uploaded `coverStorageId`, the parsed `column` and `row` coordinates, `copyCount`, and `physicalVolumeCount`) to `${convexSiteUrl}/importBook`.
 4. **Log Success**: Output the inserted `bookId` for each entry.
 
+---
+
 ## Step 6: Verify Ingestion
-- Verify in the Convex database dashboard that all 31 unique books have been correctly inserted with their proper `copyCount`, `physicalVolumeCount`, `volumeStart`, and `volumeEnd` fields, and that child records are properly linked by `parentBookId`.
+- Verify in the Convex database dashboard that all books have been correctly inserted with their proper `copyCount`, `physicalVolumeCount`, `volumeStart`, and `volumeEnd` fields, and that child records are properly linked by `parentBookId`.
