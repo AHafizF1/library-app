@@ -68,7 +68,12 @@ export default function AddBookPage() {
         if (!response.ok) throw new Error("Cover upload failed.");
         coverStorageId = (await response.json()).storageId as Id<"_storage">;
       }
-      await createBook({ organizationId: organization.id, ...book, coverStorageId });
+      await createBook({
+        ...book,
+        organizationId: organization.id,
+        parentBookId: book.parentBookId ? (book.parentBookId as Id<"books">) : undefined,
+        coverStorageId,
+      });
       setBook(emptyBook);
       setJson("");
       setCover(null);
